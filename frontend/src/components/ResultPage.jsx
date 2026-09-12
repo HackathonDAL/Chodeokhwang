@@ -101,7 +101,7 @@ function FieldDetail({ field, onBack }) {
       </section>
 
       <section className="detail-section">
-        <h2 className="section-title">아직 탐색해보지 않은 분야의 과목</h2>
+        <h2 className="section-title">이 추천 분야에서 더 배워볼 미수강 과목</h2>
         <div className="explore-course-list">
           {field.explore_courses.map((course) => (
             <div className="explore-course-card" key={course.course_code}>
@@ -138,7 +138,7 @@ function FieldDetail({ field, onBack }) {
 // topFields 데이터는 전부 props로만 받는다 -> 나중에 mockResponse 대신 실제
 // API 응답을 넘겨도 이 컴포넌트는 수정할 필요가 없다.
 // 응답 형식은 docs/RESULT_API_SPEC.md 참고.
-function ResultPage({ topFields }) {
+function ResultPage({ topFields, unexploredFields = [], onRestart }) {
   const [selectedField, setSelectedField] = useState(null)
   const selectField = (field) =>
     withViewTransition(() => setSelectedField(field))
@@ -151,12 +151,16 @@ function ResultPage({ topFields }) {
 
   return (
     <div className="result-page">
+      <button type="button" className="back-btn" onClick={onRestart}>
+        ← 과목 다시 입력하기
+      </button>
       <h1>분석 결과 - 추천 진로 TOP 3</h1>
       <p className="builder-subtitle">
         가장 적성에 맞는 분야를 확인하고, 자세한 커리어 로드맵을 살펴보세요
       </p>
 
       <div className="field-card-list">
+        {topFields.length === 0 && <p>현재는 추천 근거가 충분한 분야가 없어요. 아래 분야부터 탐색해보세요.</p>}
         {topFields.map((field, index) => (
           <FieldRankingCard
             key={field.field_id}
@@ -166,6 +170,29 @@ function ResultPage({ topFields }) {
           />
         ))}
       </div>
+      <section className="detail-section unexplored-section" aria-labelledby="unexplored-heading">
+        <h2 id="unexplored-heading" className="section-title">아직 탐색하지 않은 분야 ({unexploredFields.length})</h2>
+        <p>적성이 낮다는 뜻이 아니라, 입력한 수강 경험만으로는 아직 판단하기 어려운 분야예요. 분야별 대표 과목을 하나씩 소개합니다.</p>
+        {unexploredFields.length === 0 ? (
+          <p role="status">현재 기준에서 미탐색으로 분류된 분야가 없어요. 모든 분야를 충분히 경험했다는 뜻은 아닙니다.</p>
+        ) : (
+          <div className="unexplored-grid">
+            {unexploredFields.map((field) => (
+              <article className="explore-course-card" key={field.field_id}>
+                <h3>{field.field_name_kr}</h3>
+                <p>{field.field_name}</p>
+                <p className="explore-why">{field.reason}</p>
+                <h4>대표 과목 · {field.representative_course.course_name}</h4>
+                <div className="card-badges">
+                  <span className="badge badge-code">{field.representative_course.course_code}</span>
+                  <span className="badge badge-dept">{field.representative_course.department}</span>
+                </div>
+                <p className="explore-why">{field.representative_course.why}</p>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   )
 }

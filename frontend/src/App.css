@@ -472,6 +472,26 @@
   }
 }
 
+.analyze-btn:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.analyze-error {
+  position: fixed;
+  left: 50%;
+  bottom: 86px;
+  z-index: 20;
+  max-width: min(680px, calc(100vw - 32px));
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 10px 16px;
+  border-radius: 12px;
+  color: #991b1b;
+  background: rgba(254, 226, 226, 0.96);
+  box-shadow: 0 6px 20px rgba(153, 27, 27, 0.15);
+}
+
 .search-overlay-backdrop {
   position: fixed;
   inset: 0;
@@ -1463,3 +1483,30 @@
   }
 }
 
+/* =========================================================
+   미탐색 분야 섹션 (결과 목록 화면 하단)
+   ========================================================= */
+
+.unexplored-section {
+  margin-top: 40px;
+}
+.unexplored-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+.unexplored-grid .explore-course-card {
+  min-width: 0;
+}
+
+.analyze-error {
+  color: #e11d48;
+  background: rgba(225, 29, 72, 0.08);
+  border: 1px solid rgba(225, 29, 72, 0.25);
+  border-radius: 10px;
+  padding: 10px 16px;
+  margin-top: 16px;
+  font-size: 14px;
+  max-width: 480px;
+}
