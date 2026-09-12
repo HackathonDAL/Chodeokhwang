@@ -107,15 +107,15 @@ class APITests(unittest.TestCase):
             post.assert_not_called()
 
     def test_llm_mock_success_and_failure(self):
-        with patch.dict(os.environ, {"ENABLE_LLM": "true", "OPENAI_API_KEY": "test", "OPENAI_MODEL": "test"}):
+        with patch.dict(os.environ, {"ENABLE_LLM": "true", "GEMINI_API_KEY": "test", "GEMINI_MODEL": "test"}):
             response = Mock()
-            response.json.return_value = {"status": "completed", "output": [
-                {"type": "message", "content": [{"type": "output_text", "text": "테스트 설명입니다."}]}]}
+            response.json.return_value = {"candidates": [
+                {"content": {"parts": [{"text": "테스트 설명입니다."}]}}]}
             with patch("backend.explanations.httpx.post", return_value=response):
                 self.assertEqual(generate_reason({}, "fallback"), ("테스트 설명입니다.", "llm"))
             with patch("backend.explanations.httpx.post", side_effect=httpx.TimeoutException("timeout")):
                 self.assertEqual(generate_reason({}, "fallback"), ("fallback", "rules"))
-            response.json.return_value = {"status": "incomplete", "output": []}
+            response.json.return_value = {"candidates": []}
             with patch("backend.explanations.httpx.post", return_value=response):
                 self.assertEqual(generate_reason({}, "fallback"), ("fallback", "rules"))
 
