@@ -18,6 +18,26 @@ cd ..
 ```
 http://127.0.0.1:8000/health 에서 응답을 확인하세요.
 
+## LLM 기반 추천 이유(ai_reason) 켜기
+기본값은 규칙 기반 문장입니다(`X-Explanation-Source: rules`). 실시간 LLM 문장으로
+바꾸려면:
+
+1. `.env.example`을 `.env`로 복사 (저장소 루트에서)
+   ```powershell
+   copy .env.example .env
+   ```
+2. `.env`를 열어 아래 세 값을 채우기
+   ```
+   ENABLE_LLM=true
+   OPENAI_API_KEY=<본인 OpenAI API 키>
+   OPENAI_MODEL=gpt-4o-mini
+   ```
+   API 키는 https://platform.openai.com/api-keys 에서 발급합니다.
+   `.env`는 `.gitignore`에 등록되어 있어 깃에 올라가지 않습니다 — **절대 커밋하지 마세요.**
+3. 백엔드를 다시 시작하면 자동으로 `.env`를 읽습니다 (`backend/main.py`의 `load_dotenv()`).
+4. 확인: `/api/analyze` 응답 헤더의 `X-Explanation-Source`가 `llm`이면 정상 적용된 것입니다.
+   키가 없거나 호출이 실패하면 자동으로 `rules`로 폴백되어 화면은 항상 정상 동작합니다.
+
 ## 프론트 (루트에서 새 터미널)
 ```powershell
 cd frontend

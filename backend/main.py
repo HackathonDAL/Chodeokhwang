@@ -1,10 +1,15 @@
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from .schemas import AnalyzeRequest, AnalyzeResponse
 from .scoring import DATA_DIR, load_data, recommend
 from .service import analyze, student_profile
+
+# 저장소 루트의 .env를 읽어 ENABLE_LLM / OPENAI_API_KEY / OPENAI_MODEL 등을
+# 환경변수로 로드한다. .env 파일이 없으면 조용히 넘어간다(기존 동작 그대로).
+load_dotenv()
 
 
 def create_app(data_dir=None):
