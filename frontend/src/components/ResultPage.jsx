@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { withViewTransition } from '../utils/viewTransition'
 
 // 점수(0~100)를 가로 막대바로 시각화하는 표시용 컴포넌트
 function ScoreBar({ score }) {
@@ -139,13 +140,12 @@ function FieldDetail({ field, onBack }) {
 // 응답 형식은 docs/RESULT_API_SPEC.md 참고.
 function ResultPage({ topFields }) {
   const [selectedField, setSelectedField] = useState(null)
+  const selectField = (field) =>
+    withViewTransition(() => setSelectedField(field))
 
   if (selectedField) {
     return (
-      <FieldDetail
-        field={selectedField}
-        onBack={() => setSelectedField(null)}
-      />
+      <FieldDetail field={selectedField} onBack={() => selectField(null)} />
     )
   }
 
@@ -162,7 +162,7 @@ function ResultPage({ topFields }) {
             key={field.field_id}
             rank={index + 1}
             field={field}
-            onClick={() => setSelectedField(field)}
+            onClick={() => selectField(field)}
           />
         ))}
       </div>

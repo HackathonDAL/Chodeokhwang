@@ -1195,3 +1195,270 @@
     text-decoration: underline;
   }
 }
+
+/* =========================================================
+   스플래시 인트로 - "어디고?" 로고 조립 애니메이션
+   ========================================================= */
+
+.splash-intro {
+  position: relative;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  overflow: hidden;
+  background: linear-gradient(160deg, #fdf2f8 0%, #f5f3ff 45%, #eff6ff 100%);
+}
+
+.splash-logo-wrap {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.splash-logo {
+  opacity: 0;
+  filter: drop-shadow(0 10px 16px rgba(138, 21, 56, 0.25));
+  animation: splash-logo-drop 700ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes splash-logo-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-140px) scale(0.7) rotate(-12deg);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(6px) scale(1.05) rotate(3deg);
+  }
+  80% {
+    transform: translateY(-4px) scale(0.98) rotate(-1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+}
+
+.splash-logo .logo-needle {
+  animation: splash-needle-spin 700ms 550ms cubic-bezier(0.22, 1, 0.36, 1)
+    backwards;
+}
+
+@keyframes splash-needle-spin {
+  0% {
+    transform: rotate(-200deg);
+  }
+  70% {
+    transform: rotate(20deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.splash-logo-shadow {
+  width: 46px;
+  height: 10px;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: rgba(138, 21, 56, 0.18);
+  opacity: 0;
+  transform: scaleX(0.4);
+  animation: splash-shadow-pop 700ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes splash-shadow-pop {
+  0% {
+    opacity: 0;
+    transform: scaleX(0.2);
+  }
+  60% {
+    opacity: 0.6;
+    transform: scaleX(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+.splash-blobs {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.splash-blob {
+  position: absolute;
+  width: 340px;
+  height: 260px;
+  border-radius: 50%;
+  filter: blur(50px);
+  opacity: 0.55;
+  animation: splash-blob-drift 9s ease-in-out infinite;
+}
+
+.blob-mint {
+  top: -60px;
+  left: -80px;
+  background: #86efac;
+  animation-duration: 10s;
+}
+.blob-purple {
+  top: -80px;
+  right: -100px;
+  background: #c4b5fd;
+  animation-duration: 8.5s;
+  animation-delay: -2s;
+}
+.blob-pink {
+  bottom: -100px;
+  right: -60px;
+  background: #f9a8d4;
+  animation-duration: 11s;
+  animation-delay: -4s;
+}
+.blob-pink2 {
+  bottom: -90px;
+  left: -80px;
+  width: 260px;
+  height: 220px;
+  background: #f9a8d4;
+  opacity: 0.4;
+  animation-duration: 9.5s;
+  animation-delay: -1s;
+}
+
+@keyframes splash-blob-drift {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(24px, -18px) scale(1.08);
+  }
+}
+
+.splash-word {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* 바깥쪽: 등장 후에도 계속 둥실둥실 떠다니는 무한 반복 모션 */
+.bubble-float {
+  display: inline-block;
+  animation: splash-bubble-float var(--float-duration, 3.2s) ease-in-out
+    infinite;
+  animation-delay: var(--float-delay, 0s);
+}
+
+@keyframes splash-bubble-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(var(--float-rot, 3deg));
+  }
+}
+
+/* 안쪽: 처음 한 번 통통 튀며 팝업되는 등장 모션 + 3D 풍선 질감 */
+.bubble-pop {
+  position: relative;
+  display: inline-block;
+  font-family: 'Jua', var(--sans);
+  font-size: 132px;
+  line-height: 1;
+  padding: 0 2px;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 10px 14px rgba(76, 61, 92, 0.25));
+  opacity: 0;
+  transform: scale(0.3) translateY(30px);
+  animation: splash-bubble-pop 550ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: var(--pop-delay, 0ms);
+
+  @media (max-width: 1024px) {
+    font-size: 82px;
+  }
+}
+
+@keyframes splash-bubble-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(30px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.15) translateY(-8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.splash-subtitle {
+  position: relative;
+  z-index: 1;
+  margin-top: 20px;
+  font-size: 16px;
+  color: #4c3d5c;
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
+
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.splash-cta {
+  position: relative;
+  z-index: 1;
+  margin-top: 28px;
+  padding: 14px 40px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, #f9a8d4, #c4b5fd);
+  color: #3f2d54;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 26px rgba(196, 181, 253, 0.5);
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease,
+    box-shadow 0.2s;
+
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  &:hover {
+    box-shadow: 0 14px 30px rgba(196, 181, 253, 0.6);
+  }
+}
+
