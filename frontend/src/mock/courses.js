@@ -9,7 +9,7 @@ export const courses = [
   { course_code: "COSE222", course_name: "컴퓨터구조", department: "COSE" },
   { course_code: "COSE242", course_name: "데이터통신", department: "COSE" },
   { course_code: "COSE281", course_name: "공학수학", department: "COSE" },
-  { course_code: "COSE283", course_name: "확률이론", department: "COSE" },
+  { course_code: "COSE283", course_name: "회로이론", department: "COSE" },
   { course_code: "COSE284", course_name: "전자기학", department: "COSE" },
   { course_code: "COSE312", course_name: "컴파일러", department: "COSE" },
   { course_code: "COSE321", course_name: "컴퓨터시스템설계", department: "COSE" },
