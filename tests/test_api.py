@@ -34,8 +34,8 @@ class APITests(unittest.TestCase):
         AnalyzeResponse.model_validate(data)
         self.assertEqual(set(data), {"top_fields", "unexplored_fields"})
         unexplored = data["unexplored_fields"]
-        self.assertEqual({f["field_id"] for f in unexplored}, {"Computer_Architecture", "Embedded_Systems", "HCI"})
-        self.assertEqual(len(unexplored), 3)
+        self.assertEqual({f["field_id"] for f in unexplored}, {"Computer_Architecture", "Embedded_Systems", "HCI", "infoSec"})
+        self.assertEqual(len(unexplored), 4)
         self.assertTrue(all(f["representative_course"]["course_code"] not in {c["course_code"] for c in BODY["courses"]} for f in unexplored))
         self.assertEqual(len(data["top_fields"]), 3)
         scores = [f["score"] for f in data["top_fields"]]
@@ -51,10 +51,57 @@ class APITests(unittest.TestCase):
             self.assertLessEqual(len(field["explore_courses"]), 2)
         self.assertEqual(response.headers["x-explanation-source"], "rules")
 
+    def test_interest_weight_and_friendly_copy(self):
+        self.assertAlmostEqual(calculate_course_score(0, 5), 0.8)
+        self.assertAlmostEqual(calculate_course_score(4.5, 0), 0.2)
+        data = self.client.post("/api/analyze", json=BODY).json()
+        from backend.catalog import FIELD_DESCRIPTIONS, CATALOG
+        self.assertTrue(set(CATALOG) <= set(FIELD_DESCRIPTIONS))
+        for field in data["top_fields"]:
+            prose = [field["ai_reason"]] + [c["contribution"] for c in field["evidence_courses"]] + [c["why"] for c in field["explore_courses"]]
+            for sentence in prose:
+                self.assertNotRegex(sentence, r"연관도|가중치|점수|강의계획서|\d")
+        for field in data["unexplored_fields"]:
+            self.assertEqual(field["reason"], FIELD_DESCRIPTIONS[field["field_id"]])
+
     def test_unexplored_threshold(self):
         data = self.client.post("/api/unexplored", json=BODY).json()
         self.assertEqual({f["field"] for f in data["unexplored_fields"]},
-                         {"Computer_Architecture", "Embedded_Systems", "HCI"})
+                         {"Computer_Architecture", "Embedded_Systems", "HCI", "infoSec"})
+
+    def test_infosec_recommendation_and_catalog(self):
+        from backend.catalog import CATALOG, FIELD_DESCRIPTIONS
+        from backend.scoring import load_data, load_representative_courses
+        courses, matrix = load_data()
+        fields = set(matrix.columns) - {"course_code"}
+        reps = load_representative_courses(courses, matrix)
+        self.assertEqual(len(fields), 16)
+        self.assertEqual(set(reps.field), fields)
+        self.assertTrue(fields <= set(CATALOG) & set(FIELD_DESCRIPTIONS))
+        for removed in ("Econimics", "Economics", "Finance/Quant"):
+            self.assertNotIn(removed, fields)
+            self.assertNotIn(removed, CATALOG)
+            self.assertNotIn(removed, FIELD_DESCRIPTIONS)
+        sample = self.client.post("/api/analyze", json=BODY).json()
+        unexplored = next(f for f in sample["unexplored_fields"] if f["field_id"] == "infoSec")
+        self.assertEqual(unexplored["representative_course"]["course_code"], "COSE354")
+        self.assertEqual(unexplored["reason"], FIELD_DESCRIPTIONS["infoSec"])
+        body = {"courses": [{"course_code": code, "grade": "A+", "interest_score": 3 if code == "COSE354" else 5}
+                            for code in ("COSE354", "COSE451", "CSAI401")]}
+        response = self.client.post("/api/analyze", json=body)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        field = next(f for f in data["top_fields"] if f["field_id"] == "infoSec")
+        self.assertEqual(field["field_name_kr"], "정보보안")
+        self.assertAlmostEqual(field["score"], 88.97)
+        self.assertTrue(field["career_roadmap"]["roles"])
+        self.assertEqual(len(field["career_roadmap"]["stages"]), 3)
+        self.assertTrue(field["explore_courses"])
+        self.assertNotIn("infoSec", {f["field_id"] for f in data["unexplored_fields"]})
+        # Indirect experience prevents unexplored classification without guaranteeing recommendation.
+        limited = self.client.post("/api/analyze", json={"courses": [
+            {"course_code": "COSE342", "grade": "A+", "interest_score": 5}]}).json()
+        self.assertNotIn("infoSec", {f["field_id"] for f in limited["unexplored_fields"]})
 
     def test_unknown_duplicate_empty(self):
         variants = [{"courses": []}, {"courses": [BODY["courses"][0]] * 2},

@@ -44,7 +44,7 @@ function FieldDetail({ field, onBack }) {
       <section className="detail-section">
         <h2 className="section-title">왜 이 분야가 추천되었을까요?</h2>
         <div className="ai-reason-card">
-          <span className="ai-badge">AI 분석</span>
+          <span className="ai-badge">추천 이유</span>
           <p>{field.ai_reason}</p>
         </div>
       </section>
@@ -105,7 +105,6 @@ function FieldDetail({ field, onBack }) {
           {field.explore_courses.map((course) => (
             <div className="explore-course-card" key={course.course_code}>
               <div className="card-badges">
-                <span className="badge badge-dept">{course.department}</span>
                 <span className="badge badge-code">{course.course_code}</span>
               </div>
               <h3>{course.course_name}</h3>
@@ -185,7 +184,6 @@ function ResultPage({ topFields, unexploredFields = [], onRestart }) {
                 <h4>대표 과목 · {field.representative_course.course_name}</h4>
                 <div className="card-badges">
                   <span className="badge badge-code">{field.representative_course.course_code}</span>
-                  <span className="badge badge-dept">{field.representative_course.department}</span>
                 </div>
                 <p className="explore-why">{field.representative_course.why}</p>
               </article>

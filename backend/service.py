@@ -1,4 +1,4 @@
-from .catalog import CATALOG
+from .catalog import CATALOG, FIELD_DESCRIPTIONS
 from .schemas import AnalyzeRequest, AnalyzeResponse, GRADE_POINTS
 from .scoring import load_data, recommend, DATA_DIR
 from .explanations import generate_reason
@@ -7,6 +7,16 @@ from .explanations import generate_reason
 def student_profile(request):
     return [{"course_code": c.course_code, "grade": GRADE_POINTS[c.grade],
              "interest": c.interest_score} for c in request.courses]
+
+
+def learning_description(course):
+    interest = ("높은 흥미를 표현한 과목이에요" if course.interest_score >= 4 else
+                "보통 정도의 흥미를 표현한 과목이에요" if course.interest_score == 3 else
+                "흥미가 크지 않았던 과목이에요")
+    achievement = ("학업 성취도도 좋은 편이에요" if GRADE_POINTS[course.grade] >= 4 else
+                   "학습 경험과 성취를 함께 돌아볼 수 있어요" if GRADE_POINTS[course.grade] >= 2 else
+                   "학습 과정에서 어려웠던 부분도 함께 돌아보면 좋아요")
+    return interest + ". " + achievement + "."
 
 
 def analyze(request: AnalyzeRequest, data_dir=DATA_DIR):
@@ -28,30 +38,25 @@ def analyze(request: AnalyzeRequest, data_dir=DATA_DIR):
             c = inputs[e["course_code"]]
             evidence.append(dict(course_code=c.course_code, course_name=e["course_name"],
                                  grade=c.grade, interest_score=c.interest_score,
-                                 contribution=(f"학점 {c.grade}, 흥미도 {c.interest_score}/5, "
-                                               f"분야 연관도 {e['relevance']:.2f}로 점수 계산에 반영됐어요.")))
+                                 contribution=learning_description(c)))
         candidates = [(code, float(weights.loc[code, field_id])) for code in catalog
                       if code not in inputs and float(weights.loc[code, field_id]) > 0]
         candidates.sort(key=lambda pair: (-pair[1], pair[0]))
         explore = [dict(course_code=code, course_name=catalog[code]["course_name"],
                         department=catalog[code]["department"],
-                        why=(f"{korean} 분야와 연관도 {weight:.2f}인 미수강 과목이에요. "
-                             "선수과목과 개설 여부는 강의계획서에서 확인해 주세요."))
+                        why=f"{korean} 분야를 더 알아볼 수 있는 미수강 과목이에요. 수업에서 다루는 주제가 궁금하다면 다음 탐색 후보로 살펴보세요.")
                    for code, weight in candidates[:2]]
         names = ", ".join(e["course_name"] for e in evidence)
-        warning = ("점수는 적성 확률이 아니라 수강 경험의 가중평균이에요."
-                   if f["evidence_status"] == "sufficient" else
-                   "직접 관련 수강 경험이 충분하지 않아 확정 추천이 아닌 탐색 후보예요.")
-        if f["score"] < .6:
-            warning += " 현재 점수가 낮으므로 높은 선호로 해석하지 마세요."
+        warning = "현재 수강 경험을 바탕으로 한 추천이므로, 새로운 과목을 경험하면서 관심 분야가 달라질 수 있어요."
         if sum(g["score_points"] == f["score_points"] for g in profile["fields"]) > 1:
-            warning += " 동점 분야 간 우열은 판단하기 어려워요."
-        fallback = (f"{names}의 성적과 흥미를 분야 연관도로 가중평균해 "
-                    f"{korean} 점수가 {f['score_points']:.2f}점으로 계산됐어요.")
-        context = dict(field_name_kr=korean, score=f["score_points"],
-                       courses=[dict(course_name=catalog[c.course_code]["course_name"],
-                                     grade=c.grade, interest_score=c.interest_score)
-                                for c in request.courses], evidence_courses=evidence)
+            warning += " 비슷하게 추천된 분야도 함께 살펴보세요."
+        interested = [e["course_name"] for e in evidence if e["interest_score"] >= 4]
+        fallback = ((f"{', '.join(interested)}에서 표현한 흥미가 {korean} 분야를 탐색할 단서가 되었어요. "
+                     if interested else f"{names}의 학습 경험을 바탕으로 {korean} 분야를 탐색 후보로 제안해요. ")
+                    + "좋아했던 학습 경험을 중심으로 성취도도 함께 살펴 추천했어요.")
+        context = dict(field_name_kr=korean,
+                       evidence_courses=[dict(course_name=e["course_name"], description=e["contribution"])
+                                         for e in evidence])
         reason, source = generate_reason(context, fallback)
         sources.append(source)
         next_names = ", ".join(e["course_name"] for e in explore)
@@ -59,7 +64,7 @@ def analyze(request: AnalyzeRequest, data_dir=DATA_DIR):
                            score=f["score_points"], ai_reason=reason + " " + warning,
                            career_roadmap=dict(roles=roles, stages=[
                                dict(stage="지금", milestone=f"수강 기록: {names}. 흥미와 학습 경험을 돌아보세요."),
-                               dict(stage="다음 학기", milestone=(f"{next_names} 수강 검토. 선수과목·개설 여부 확인 필요."
+                               dict(stage="다음 학기", milestone=(f"{next_names}을 살펴보고 더 배우고 싶은 주제를 골라보세요."
                                     if explore else "등록된 미수강 후보가 없어 상담·프로젝트 탐색을 검토하세요.")),
                                dict(stage="졸업 후", milestone=f"{roles[0]} 등 관련 직무 또는 대학원 탐색. 별도 역량 준비가 필요해요."),
                            ]), evidence_courses=evidence, explore_courses=explore, labs=[]))
@@ -68,14 +73,14 @@ def analyze(request: AnalyzeRequest, data_dir=DATA_DIR):
         field_id = item["field"]
         english, korean, _ = CATALOG[field_id]
         course = item["representative_course"]
-        reason = "입력한 수강 과목 중 이 분야의 탐색 기준(연관도 0.3 이상)을 충족하는 과목이 없어, 아직 선호를 판단하지 않았어요."
+        reason = FIELD_DESCRIPTIONS[field_id]
         unexplored.append(dict(
             field_id=field_id, field_name=english, field_name_kr=korean,
             reason=reason,
             representative_course=dict(
                 course_code=course["course_code"], course_name=course["course_name"],
                 department=catalog[course["course_code"]]["department"],
-                why="분야를 알아보기 위한 대표 과목이에요. 선수과목과 개설 여부는 강의계획서에서 확인해 주세요.",
+                why="이 분야가 어떤 내용을 다루는지 알아보기 위한 대표 과목이에요.",
             ),
         ))
     return AnalyzeResponse(top_fields=fields, unexplored_fields=unexplored), ("mixed" if len(set(sources)) > 1 else sources[0] if sources else "rules")

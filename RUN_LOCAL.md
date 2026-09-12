@@ -74,7 +74,12 @@ npm.cmd run build
 - 분야 점수는 적성 확률이 아닙니다. 미탐색 판정은 입력 과목과 CSV 연관도(0.3 기준)에 의존하며 실제 강의 내용을 확인한 결과가 아닙니다.
 
 샘플: STAT221 B+ 흥미도 3, STAT342 A+ 흥미도 4, COSE213 A+ 흥미도 3, COSE361 A+ 흥미도 5.
-추천: ML 86.14, Algorithms 83.93, DS 82.69.
-미탐색: Computer_Architecture, Embedded_Systems, HCI (각 대표 과목 1개).
+흥미도 80%·학점 20%로 계산합니다. 이전 6:4 데모와 점수가 다릅니다.
+미탐색: Computer_Architecture, Embedded_Systems, HCI, infoSec (각 대표 과목 1개).
+
+최신 화면은 입력 카드·검색 목록·결과에서 학과 배지를 표시하지 않습니다.
+미탐색 분야에는 분야 소개를 표시하고, 추천 설명에서는 계산용 숫자를 자연어로 표현합니다.
+경제·금융 분야를 제거하고 infoSec(정보보안)을 추가했습니다. 대표 과목은 COSE354 정보보호입니다.
+Gemini 연결과 환경변수 로딩은 유지되며 기본값은 규칙 기반 설명입니다.
 
 이 문서의 API 확장 사항은 기존 docs/RESULT_API_SPEC.md에 추가되는 내용입니다.

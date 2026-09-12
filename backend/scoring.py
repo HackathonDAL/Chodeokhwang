@@ -103,7 +103,7 @@ def calculate_course_score(grade, interest):
         raise ValueError("성적은 0~4.5여야 합니다.")
     if not math.isfinite(interest) or not 0 <= interest <= 5:
         raise ValueError("흥미는 0~5여야 합니다.")
-    return 0.4 * grade / 4.5 + 0.6 * interest / 5
+    return 0.2 * grade / 4.5 + 0.8 * interest / 5
 
 
 def recommend(student_courses, config=None, data_dir=DATA_DIR):
@@ -151,7 +151,7 @@ def recommend(student_courses, config=None, data_dir=DATA_DIR):
         explanation = (
             f"직접 관련 수강 과목 {len(direct)}개, 직접 연관도 합 "
             f"{sum(e['relevance'] for e in direct):.2f}. "
-            + (f"성적 40%·흥미 60%의 연관도 가중평균은 {score * 100:.1f}점입니다. "
+            + (f"성적 20%·흥미 80%의 연관도 가중평균은 {score * 100:.1f}점입니다. "
                if score is not None else "점수를 계산할 관련 경험이 없습니다. ")
             + ("설정된 근거 기준을 충족합니다." if sufficient else
                "직접 관련 수강 경험이 부족합니다. 낮은 선호를 뜻하지 않습니다.")

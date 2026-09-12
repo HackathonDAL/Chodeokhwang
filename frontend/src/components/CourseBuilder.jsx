@@ -45,7 +45,7 @@ function CourseSearchOverlay({ excludeCodes, onAdd, onClose }) {
               <button type="button" onClick={() => onAdd(course)}>
                 <span className="course-name">{course.course_name}</span>
                 <span className="course-meta">
-                  {course.department} · {course.course_code}
+                  {course.course_code}
                 </span>
               </button>
             </li>
@@ -130,7 +130,6 @@ function CourseBuilder({ onAnalyze, isAnalyzing = false, analyzeError = '' }) {
             </button>
 
             <div className="card-badges">
-              <span className="badge badge-dept">{course.department}</span>
               <span className="badge badge-code">{course.course_code}</span>
             </div>
 
