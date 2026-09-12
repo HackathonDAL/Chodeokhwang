@@ -943,7 +943,8 @@
   margin-bottom: 32px;
 
   h1 {
-    margin: 6px 0 2px;
+    margin: 10px 0;
+    line-height: 1.15;
   }
 }
 
