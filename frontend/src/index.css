@@ -82,6 +82,12 @@ h1 {
     font-size: 36px;
     margin: 20px 0;
   }
+  /* 휴대폰 폭에서는 제목이 두 줄로 안 나뉘도록 폰트를 한 번 더 줄인다.
+     (320px처럼 좁은 화면에서도 한 줄에 들어가도록 여유 있게 잡음) */
+  @media (max-width: 600px) {
+    font-size: 24px;
+    letter-spacing: -0.5px;
+  }
 }
 h2 {
   font-size: 24px;
