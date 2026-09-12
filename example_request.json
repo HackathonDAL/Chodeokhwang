@@ -1,0 +1,10 @@
+{
+  "courses": [
+    {"course_code": "STAT221", "grade": "B+", "interest_score": 3},
+    {"course_code": "STAT342", "grade": "A+", "interest_score": 4},
+    {"course_code": "COSE213", "grade": "A+", "interest_score": 3},
+    {"course_code": "COSE361", "grade": "A+", "interest_score": 5}
+  ],
+  "mbti": null,
+  "preferred_field": null
+}

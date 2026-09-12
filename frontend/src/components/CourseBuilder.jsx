@@ -60,7 +60,7 @@ function CourseSearchOverlay({ excludeCodes, onAdd, onClose }) {
 }
 
 // 화면 1: 빈 화면 + "+"로 과목을 추가하고, 추가와 동시에 학점/흥미도까지 입력하는 통합 화면
-function CourseBuilder({ onAnalyze }) {
+function CourseBuilder({ onAnalyze, isAnalyzing = false, analyzeError = '' }) {
   const [entries, setEntries] = useState([])
   const [isSearchOpen, setSearchOpen] = useState(false)
 
@@ -202,10 +202,12 @@ function CourseBuilder({ onAnalyze }) {
       </div>
 
       {entries.length > 0 && (
-        <button type="button" className="analyze-btn" onClick={handleAnalyze}>
-          분석하기
+        <button type="button" className="analyze-btn" onClick={handleAnalyze} disabled={isAnalyzing}>
+          {isAnalyzing ? '분석 중...' : '분석하기'}
         </button>
       )}
+
+      {analyzeError && <p className="analyze-error" role="alert">{analyzeError}</p>}
 
       {isSearchOpen && (
         <CourseSearchOverlay

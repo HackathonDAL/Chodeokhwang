@@ -472,6 +472,26 @@
   }
 }
 
+.analyze-btn:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.analyze-error {
+  position: fixed;
+  left: 50%;
+  bottom: 86px;
+  z-index: 20;
+  max-width: min(680px, calc(100vw - 32px));
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 10px 16px;
+  border-radius: 12px;
+  color: #991b1b;
+  background: rgba(254, 226, 226, 0.96);
+  box-shadow: 0 6px 20px rgba(153, 27, 27, 0.15);
+}
+
 .search-overlay-backdrop {
   position: fixed;
   inset: 0;
@@ -1195,3 +1215,6 @@
     text-decoration: underline;
   }
 }
+.unexplored-section { margin-top: 40px; }
+.unexplored-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 20px; margin-top: 20px; }
+.unexplored-grid .explore-course-card { min-width: 0; }
