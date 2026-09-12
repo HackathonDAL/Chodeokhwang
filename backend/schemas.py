@@ -35,16 +35,6 @@ class AnalyzeRequest(StrictModel):
         return self
 
 
-class Stage(StrictModel):
-    stage: str
-    milestone: str
-
-
-class Roadmap(StrictModel):
-    roles: list[str]
-    stages: list[Stage]
-
-
 class Evidence(StrictModel):
     course_code: str
     course_name: str
@@ -60,10 +50,9 @@ class Explore(StrictModel):
     why: str
 
 
-class Lab(StrictModel):
-    professor: str
-    lab_name: str
-    lab_url: str
+class Career(StrictModel):
+    title: str
+    description: str
 
 
 class FieldResult(StrictModel):
@@ -72,10 +61,10 @@ class FieldResult(StrictModel):
     field_name_kr: str
     score: float = Field(ge=0, le=100)
     ai_reason: str
-    career_roadmap: Roadmap
+    field_description: str
+    related_careers: list[Career]
     evidence_courses: list[Evidence]
     explore_courses: list[Explore]
-    labs: list[Lab]
 
 
 class UnexploredField(StrictModel):
@@ -89,3 +78,4 @@ class UnexploredField(StrictModel):
 class AnalyzeResponse(StrictModel):
     top_fields: list[FieldResult] = Field(max_length=3)
     unexplored_fields: list[UnexploredField] = Field(default_factory=list)
+

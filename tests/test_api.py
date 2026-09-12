@@ -17,8 +17,7 @@ BODY = {"courses": [
     {"course_code": "COSE213", "grade": "A+", "interest_score": 3},
     {"course_code": "COSE361", "grade": "A+", "interest_score": 5},
 ], "mbti": None, "preferred_field": None}
-#안녕하세요! 저희는 팀 김덕현 / 조휴건 / 황성준입니다. 잘 부탁드립니다!
-#지금 옆에서 열심히 배포 중인데, 난관에 봉착했습니다,,, 해결하길 빌어주세요,,,
+
 
 class APITests(unittest.TestCase):
     def setUp(self):
@@ -43,9 +42,10 @@ class APITests(unittest.TestCase):
         self.assertEqual(scores, sorted(scores, reverse=True))
         for field in data["top_fields"]:
             self.assertEqual(set(field), {"field_id", "field_name", "field_name_kr", "score", "ai_reason",
-                                         "career_roadmap", "evidence_courses", "explore_courses", "labs"})
-            self.assertEqual(field["labs"], [])
-            self.assertEqual(len(field["career_roadmap"]["stages"]), 3)
+                                         "field_description", "related_careers", "evidence_courses", "explore_courses"})
+            self.assertTrue(field["field_description"])
+            self.assertEqual(len(field["related_careers"]), 3)
+            self.assertTrue(all(c["title"] and c["description"] for c in field["related_careers"]))
             selected = {c["course_code"] for c in BODY["courses"]}
             self.assertTrue(all(e["course_code"] in selected for e in field["evidence_courses"]))
             self.assertTrue(all(e["course_code"] not in selected for e in field["explore_courses"]))
@@ -95,8 +95,8 @@ class APITests(unittest.TestCase):
         field = next(f for f in data["top_fields"] if f["field_id"] == "infoSec")
         self.assertEqual(field["field_name_kr"], "정보보안")
         self.assertAlmostEqual(field["score"], 88.97)
-        self.assertTrue(field["career_roadmap"]["roles"])
-        self.assertEqual(len(field["career_roadmap"]["stages"]), 3)
+        self.assertTrue(field["related_careers"])
+        self.assertTrue(field["field_description"])
         self.assertTrue(field["explore_courses"])
         self.assertNotIn("infoSec", {f["field_id"] for f in data["unexplored_fields"]})
         # Indirect experience prevents unexplored classification without guaranteeing recommendation.
@@ -170,3 +170,4 @@ class APITests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

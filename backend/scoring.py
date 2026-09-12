@@ -18,8 +18,11 @@ class RecommendationConfig:
     min_recommendation_score: float = 0.6
     candidate_relevance: float = 0.5
     top_k: int = 3
+    early_interest: float = 4.0
 
     def __post_init__(self):
+        if not math.isfinite(self.early_interest) or not 0 <= self.early_interest <= 5:
+            raise ValueError("초기 관심 기준은 0~5여야 합니다.")
         if not 0 < self.exposure_relevance <= self.direct_relevance:
             raise ValueError("탐색 기준은 0 초과 직접 관련 기준 이하여야 합니다.")
         for value in (self.direct_relevance, self.candidate_relevance):
@@ -143,6 +146,9 @@ def recommend(student_courses, config=None, data_dir=DATA_DIR):
         direct = [e for e in evidence if e["direct"]]
         sufficient = (len(direct) >= config.min_direct_courses and
                       sum(e["relevance"] for e in direct) >= config.min_direct_relevance)
+        early_candidate = (not sufficient and any(
+            e["interest"] >= config.early_interest
+            and e["course_score"] >= config.min_recommendation_score for e in direct))
         exposed = any(e["relevance"] >= config.exposure_relevance for e in evidence)
         status = "sufficient" if sufficient else "limited" if exposed else "unexplored"
         for e in evidence:
@@ -158,12 +164,12 @@ def recommend(student_courses, config=None, data_dir=DATA_DIR):
         )
         fields.append(dict(field=field, score=score,
                            score_points=round(score * 100, 2) if score is not None else None,
-                           evidence_status=status, direct_course_count=len(direct),
+                           evidence_status=status, early_candidate=early_candidate, direct_course_count=len(direct),
                            direct_relevance_sum=sum(e["relevance"] for e in direct),
                            evidence=evidence, explanation=explanation))
 
     fields.sort(key=lambda f: (-(f["score"] if f["score"] is not None else -1), f["field"]))
-    eligible = [f for f in fields if f["evidence_status"] == "sufficient"
+    eligible = [f for f in fields if (f["evidence_status"] == "sufficient" or f["early_candidate"])
                 and f["score"] >= config.min_recommendation_score]
     # 표시 점수가 같은 분야는 공동 순위. Top 3 경계 동점은 별도로 반환한다.
     for f in eligible:
@@ -235,3 +241,4 @@ def calculate_student_profile(student_courses, data_dir=DATA_DIR):
 if __name__ == "__main__":
     import json
     print(json.dumps(recommend([]), ensure_ascii=False, indent=2, allow_nan=False))
+

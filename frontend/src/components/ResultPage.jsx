@@ -24,10 +24,8 @@ function FieldRankingCard({ rank, field, onClick }) {
 
 // 화면 4: 선택한 Field 상세
 // - 왜 추천되었는지(AI 자연어 설명)
-// - 커리어 로드맵(직종 + 단계별 계획)
-// - 추천 근거가 충분한 과목
+// - 분야 소개와 관련 직업의 업무 설명
 // - 아직 탐색해보지 않은 분야의 과목
-// - 관련 연구실
 function FieldDetail({ field, onBack }) {
   return (
     <div className="field-detail">
@@ -50,51 +48,18 @@ function FieldDetail({ field, onBack }) {
       </section>
 
       <section className="detail-section">
-        <h2 className="section-title">커리어 로드맵</h2>
-        <div className="career-tags">
-          {field.career_roadmap.roles.map((role) => (
-            <span className="tag" key={role}>
-              {role}
-            </span>
-          ))}
-        </div>
-        <ol className="roadmap-timeline">
-          {field.career_roadmap.stages.map((step, index) => (
-            <li key={step.stage}>
-              <span className="roadmap-dot">{index + 1}</span>
-              <div>
-                <p className="roadmap-stage">{step.stage}</p>
-                <p className="roadmap-milestone">{step.milestone}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
+        <h2 className="section-title">이 분야는 무엇을 배우나요?</h2>
+        <div className="ai-reason-card"><p>{field.field_description}</p></div>
       </section>
 
       <section className="detail-section">
-        <h2 className="section-title">추천 근거가 충분한 과목</h2>
+        <h2 className="section-title">관련 직업과 하는 일</h2>
         <div className="evidence-course-list">
-          {field.evidence_courses.map((course) => (
-            <div className="evidence-course-card" key={course.course_code}>
-              <div className="evidence-course-head">
-                <h3>{course.course_name}</h3>
-                <span className="evidence-grade">{course.grade}</span>
-              </div>
-              <p className="evidence-code">{course.course_code}</p>
-              <div className="evidence-interest">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <span
-                    key={star}
-                    className={
-                      star <= course.interest_score ? 'mini-star filled' : 'mini-star'
-                    }
-                  >
-                    ★
-                  </span>
-                ))}
-              </div>
-              <p className="evidence-contribution">{course.contribution}</p>
-            </div>
+          {field.related_careers.map((career) => (
+            <article className="evidence-course-card" key={career.title}>
+              <h3>{career.title}</h3>
+              <p className="evidence-contribution">{career.description}</p>
+            </article>
           ))}
         </div>
       </section>
@@ -114,20 +79,7 @@ function FieldDetail({ field, onBack }) {
         </div>
       </section>
 
-      <section className="detail-section">
-        <h2 className="section-title">관련 연구실</h2>
-        <div className="lab-list">
-          {field.labs.map((lab) => (
-            <div className="lab-card" key={lab.lab_name}>
-              <p className="lab-name">{lab.lab_name}</p>
-              <p className="lab-professor">지도교수: {lab.professor}</p>
-              <a href={lab.lab_url} target="_blank" rel="noreferrer">
-                연구실 바로가기
-              </a>
-            </div>
-          ))}
-        </div>
-      </section>
+
     </div>
   )
 }
@@ -155,7 +107,7 @@ function ResultPage({ topFields, unexploredFields = [], onRestart }) {
       </button>
       <h1>분석 결과 - 추천 진로 TOP 3</h1>
       <p className="builder-subtitle">
-        가장 적성에 맞는 분야를 확인하고, 자세한 커리어 로드맵을 살펴보세요
+        추천 분야가 무엇을 배우는지, 어떤 직업으로 이어지는지 살펴보세요
       </p>
 
       <div className="field-card-list">
@@ -196,3 +148,4 @@ function ResultPage({ topFields, unexploredFields = [], onRestart }) {
 }
 
 export default ResultPage
+
