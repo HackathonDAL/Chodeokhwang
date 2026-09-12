@@ -10,7 +10,7 @@ from backend.main import create_app
 from backend.schemas import AnalyzeRequest, AnalyzeResponse
 from backend.explanations import generate_reason
 from backend.scoring import calculate_course_score
-
+#살려주세요 ㅠㅠ
 BODY = {"courses": [
     {"course_code": "STAT221", "grade": "B+", "interest_score": 3},
     {"course_code": "STAT342", "grade": "A+", "interest_score": 4},
