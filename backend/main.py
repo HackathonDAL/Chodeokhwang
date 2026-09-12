@@ -14,12 +14,22 @@ load_dotenv()
 
 def create_app(data_dir=None):
     directory = Path(data_dir or os.getenv("SOADAL_DATA_DIR", str(DATA_DIR)))
-    app = FastAPI(title="KU Compass Result API", version="1.0.0")
-    origins = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000")
-    app.add_middleware(CORSMiddleware, allow_origins=[s.strip() for s in origins.split(",") if s.strip()],
-                       allow_methods=["GET", "POST"], allow_headers=["Content-Type"],
-                       expose_headers=["X-Explanation-Source"])
 
+    app = FastAPI(title="KU Compass Result API", version="1.0.0")
+
+    origins = os.getenv(
+        "CORS_ORIGINS",
+        "http://localhost:5173,http://127.0.0.1:5173,https://soadal.vercel.app"
+    )
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[s.strip() for s in origins.split(",")],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["X-Explanation-Source"],
+    )
     def checked(request):
         try:
             courses, _ = load_data(directory)
