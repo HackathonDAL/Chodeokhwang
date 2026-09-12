@@ -1,18 +1,14 @@
 import { useState } from 'react'
 import './App.css'
-import CourseSelect from './components/CourseSelect'
-import CourseEvaluate from './components/CourseEvaluate'
+import IntroScreen from './components/IntroScreen'
+import CourseBuilder from './components/CourseBuilder'
 import ResultPage from './components/ResultPage'
 import { mockResponse } from './mock/mockResponse'
 
 function App() {
-  const [step, setStep] = useState('select') // 'select' | 'evaluate' | 'result'
-  const [selectedCourses, setSelectedCourses] = useState([])
-
-  const handleSelectNext = (courses) => {
-    setSelectedCourses(courses)
-    setStep('evaluate')
-  }
+  // 생성형 AI 캐릭터를 쓴 인트로 화면은 보류 상태라 기본값에서는 건너뛴다.
+  // 다시 쓰게 되면 초기값을 'intro'로만 되돌리면 된다.
+  const [step, setStep] = useState('build') // 'intro' | 'build' | 'result'
 
   const handleAnalyze = (requestBody) => {
     // TODO: 백엔드 연동 시 requestBody로 API를 호출하고,
@@ -24,13 +20,8 @@ function App() {
 
   return (
     <>
-      {step === 'select' && <CourseSelect onNext={handleSelectNext} />}
-      {step === 'evaluate' && (
-        <CourseEvaluate
-          selectedCourses={selectedCourses}
-          onAnalyze={handleAnalyze}
-        />
-      )}
+      {step === 'intro' && <IntroScreen onStart={() => setStep('build')} />}
+      {step === 'build' && <CourseBuilder onAnalyze={handleAnalyze} />}
       {step === 'result' && <ResultPage topFields={mockResponse.top_fields} />}
     </>
   )
