@@ -1,15 +1,20 @@
 import { useState } from 'react'
 import './App.css'
+import SplashIntro from './components/SplashIntro'
 import CourseBuilder from './components/CourseBuilder'
 import ResultPage from './components/ResultPage'
+import { withViewTransition } from './utils/viewTransition'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000'
 
 function App() {
-  const [step, setStep] = useState('build')
+  const [step, setStep] = useState('splash') // 'splash' | 'build' | 'result'
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  // 화면(step)이 바뀔 때 부드러운 크로스페이드로 전환되도록 감싼 setter.
+  const goToStep = (next) => withViewTransition(() => setStep(next))
 
   const handleAnalyze = async (requestBody) => {
     setLoading(true)
@@ -26,14 +31,19 @@ function App() {
         throw new Error(
           typeof detail === 'string'
             ? detail
-            : detail?.message ?? '입력값 또는 백엔드 데이터를 확인해주세요.'
+            : (detail?.message ?? '입력값 또는 백엔드 데이터를 확인해주세요.')
         )
       }
-      if (!Array.isArray(data?.top_fields) || !Array.isArray(data?.unexplored_fields)) {
-        throw new Error('새 데모의 백엔드를 실행해주세요. 응답에 미탐색 분야 정보가 없습니다.')
+      if (
+        !Array.isArray(data?.top_fields) ||
+        !Array.isArray(data?.unexplored_fields)
+      ) {
+        throw new Error(
+          '새 데모의 백엔드를 실행해주세요. 응답에 미탐색 분야 정보가 없습니다.'
+        )
       }
       setResult(data)
-      setStep('result')
+      goToStep('result')
     } catch (requestError) {
       setError(
         requestError instanceof TypeError
@@ -47,6 +57,7 @@ function App() {
 
   return (
     <>
+      {step === 'splash' && <SplashIntro onStart={() => goToStep('build')} />}
       {step === 'build' && (
         <CourseBuilder
           onAnalyze={handleAnalyze}
@@ -61,7 +72,7 @@ function App() {
           onRestart={() => {
             setResult(null)
             setError('')
-            setStep('build')
+            goToStep('build')
           }}
         />
       )}
