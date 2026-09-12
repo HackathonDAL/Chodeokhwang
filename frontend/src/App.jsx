@@ -1,18 +1,11 @@
 import { useState } from 'react'
 import './App.css'
-import CourseSelect from './components/CourseSelect'
-import CourseEvaluate from './components/CourseEvaluate'
+import CourseBuilder from './components/CourseBuilder'
 import ResultPage from './components/ResultPage'
 import { mockResponse } from './mock/mockResponse'
 
 function App() {
-  const [step, setStep] = useState('select') // 'select' | 'evaluate' | 'result'
-  const [selectedCourses, setSelectedCourses] = useState([])
-
-  const handleSelectNext = (courses) => {
-    setSelectedCourses(courses)
-    setStep('evaluate')
-  }
+  const [step, setStep] = useState('build') // 'build' | 'result'
 
   const handleAnalyze = (requestBody) => {
     // TODO: 백엔드 연동 시 requestBody로 API를 호출하고,
@@ -24,13 +17,7 @@ function App() {
 
   return (
     <>
-      {step === 'select' && <CourseSelect onNext={handleSelectNext} />}
-      {step === 'evaluate' && (
-        <CourseEvaluate
-          selectedCourses={selectedCourses}
-          onAnalyze={handleAnalyze}
-        />
-      )}
+      {step === 'build' && <CourseBuilder onAnalyze={handleAnalyze} />}
       {step === 'result' && <ResultPage topFields={mockResponse.top_fields} />}
     </>
   )
