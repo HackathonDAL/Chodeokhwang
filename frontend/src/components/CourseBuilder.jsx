@@ -114,87 +114,97 @@ function CourseBuilder({ onAnalyze }) {
       </p>
 
       {entries.length === 0 && (
-        <div className="empty-state">
-          <button
-            type="button"
-            className="add-course-fab"
-            onClick={() => setSearchOpen(true)}
-            aria-label="과목 추가"
-          >
-            +
-          </button>
-          <p>아직 추가한 과목이 없어요</p>
-        </div>
+        <p className="empty-hint-text">아직 추가한 과목이 없어요</p>
       )}
 
-      {entries.length > 0 && (
-        <>
-          <div className="course-card-list">
-            {entries.map((course) => (
-              <div className="course-card" key={course.course_code}>
-                <button
-                  type="button"
-                  className="remove-btn"
-                  onClick={() => removeCourse(course.course_code)}
-                  aria-label="삭제"
-                >
-                  ✕
-                </button>
-                <h2>{course.course_name}</h2>
-                <p className="course-meta">
-                  {course.department} · {course.course_code}
-                </p>
+      <div className="course-card-list">
+        {entries.map((course, index) => (
+          <div className="course-card" key={course.course_code}>
+            <button
+              type="button"
+              className="card-remove"
+              onClick={() => removeCourse(course.course_code)}
+              aria-label="삭제"
+            >
+              ✕
+            </button>
 
-                <div className="field-row">
-                  <span className="field-label">흥미도</span>
-                  <div className="star-rating">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <span
-                        key={star}
-                        className={
-                          star <= course.interest_score ? 'star filled' : 'star'
-                        }
-                        onClick={() =>
-                          updateInterestScore(course.course_code, star)
-                        }
-                      >
-                        ★
-                      </span>
-                    ))}
-                  </div>
-                </div>
+            <div className="card-badges">
+              <span className="badge badge-dept">{course.department}</span>
+              <span className="badge badge-code">{course.course_code}</span>
+            </div>
 
-                <div className="field-row">
-                  <span className="field-label">학점</span>
-                  <select
-                    value={course.grade}
-                    onChange={(e) =>
-                      updateGrade(course.course_code, e.target.value)
-                    }
-                  >
-                    {GRADES.map((grade) => (
-                      <option key={grade} value={grade}>
-                        {grade}
-                      </option>
-                    ))}
-                  </select>
+            <h2 className="card-title">{course.course_name}</h2>
+
+            <div className="card-stats">
+              <div className="stat-cell">
+                <div className="stat-value stat-stars">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <span
+                      key={star}
+                      className={
+                        star <= course.interest_score
+                          ? 'stat-star filled'
+                          : 'stat-star'
+                      }
+                      onClick={() =>
+                        updateInterestScore(course.course_code, star)
+                      }
+                    >
+                      ★
+                    </span>
+                  ))}
                 </div>
+                <span className="stat-label">흥미도</span>
               </div>
-            ))}
+
+              <div className="stat-cell">
+                <select
+                  className="stat-value stat-select"
+                  value={course.grade}
+                  onChange={(e) =>
+                    updateGrade(course.course_code, e.target.value)
+                  }
+                >
+                  {GRADES.map((grade) => (
+                    <option key={grade} value={grade}>
+                      {grade}
+                    </option>
+                  ))}
+                </select>
+                <span className="stat-label">학점</span>
+              </div>
+
+              <div className="stat-cell">
+                <span className="stat-value">{index + 1}</span>
+                <span className="stat-label">순서</span>
+              </div>
+            </div>
+
+            <div className="card-progress">
+              <div
+                className="card-progress-fill"
+                style={{ width: `${(course.interest_score / 5) * 100}%` }}
+              />
+            </div>
           </div>
+        ))}
 
-          <button
-            type="button"
-            className="add-course-pill"
-            onClick={() => setSearchOpen(true)}
-          >
-            + 과목 추가
-          </button>
+        <button
+          type="button"
+          className="add-tile"
+          onClick={() => setSearchOpen(true)}
+          aria-label="과목 추가"
+        >
+          <span className="add-tile-icon">+</span>
+          <span className="add-tile-text">과목 추가</span>
+        </button>
+      </div>
 
-          <button type="button" className="analyze-btn" onClick={handleAnalyze}>
-            분석하기
-          </button>
-        </>
+      {entries.length > 0 && (
+        <button type="button" className="analyze-btn" onClick={handleAnalyze}>
+          분석하기
+        </button>
       )}
 
       {isSearchOpen && (
