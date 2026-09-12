@@ -17,7 +17,8 @@ BODY = {"courses": [
     {"course_code": "COSE213", "grade": "A+", "interest_score": 3},
     {"course_code": "COSE361", "grade": "A+", "interest_score": 5},
 ], "mbti": None, "preferred_field": None}
-
+#안녕하세요! 저희는 팀 김덕현 / 조휴건 / 황성준입니다. 잘 부탁드립니다!
+#지금 옆에서 열심히 배포 중인데, 난관에 봉착했습니다,,, 해결하길 빌어주세요,,,
 
 class APITests(unittest.TestCase):
     def setUp(self):
